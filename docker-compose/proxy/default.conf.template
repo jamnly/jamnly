@@ -4,16 +4,13 @@ map $http_upgrade $connection_upgrade {
   ''      close;
 }
 
-include templates/monitoring.conf;
-
 server {
-    listen       443 ssl;
-    server_name  evmexplorer.testnet.treasurenet.io  blockscout.testnet.treasurenet.io;
-    ssl_certificate  templates/certs/cloudflare.pem;
-    ssl_certificate_key  templates/certs/cloudflare.key;
+    listen       9555;
+    server_name  192.168.1.18;
+    proxy_http_version 1.1;
 
     location ~ ^/(api|socket|sitemap.xml|auth/auth0|auth/auth0/callback|auth/logout) {
-        proxy_pass            ${BACK_PROXY_PASS};
+        proxy_pass            http://192.168.1.18:4000;
         proxy_http_version    1.1;
         proxy_set_header      Host "$host";
         proxy_set_header      X-Real-IP "$remote_addr";
@@ -22,9 +19,11 @@ server {
         proxy_set_header      Upgrade "$http_upgrade";
         proxy_set_header      Connection $connection_upgrade;
         proxy_cache_bypass    $http_upgrade;
+        add_header 'Access-Control-Allow-Origin' '*' always;
+        
     }
     location / {
-        proxy_pass            ${FRONT_PROXY_PASS};
+        proxy_pass            http://192.168.1.18:3000;
         proxy_http_version    1.1;
         proxy_set_header      Host "$host";
         proxy_set_header      X-Real-IP "$remote_addr";
@@ -33,15 +32,19 @@ server {
         proxy_set_header      Upgrade "$http_upgrade";
         proxy_set_header      Connection $connection_upgrade;
         proxy_cache_bypass    $http_upgrade;
+        add_header 'Access-Control-Allow-Origin' '*' always;
     }
-
+   
 }
-
 server {
-    listen       8080 ssl;
-    server_name  evmexplorer.stats.testnet.treasurenet.io;
-    ssl_certificate  templates/certs/cloudflare.pem;
-    ssl_certificate_key  templates/certs/cloudflare.key;
+    listen       8080;
+    server_name  172.16.21.177;
+    proxy_http_version 1.1;
+    proxy_hide_header Access-Control-Allow-Origin;
+    proxy_hide_header Access-Control-Allow-Methods;
+    add_header 'Access-Control-Allow-Origin' '*' always;
+    add_header 'Access-Control-Allow-Credentials' 'true' always;
+    add_header 'Access-Control-Allow-Methods' 'PUT, GET, POST, OPTIONS, DELETE, PATCH' always;
 
     location / {
         proxy_pass            http://stats:8050/;
@@ -56,10 +59,16 @@ server {
     }
 }
 server {
-    listen       8081 ssl;
-    server_name  evmexplorer.va.testnet.treasurenet.io;
-    ssl_certificate  templates/certs/cloudflare.pem;
-    ssl_certificate_key  templates/certs/cloudflare.key;
+    listen       8081;
+    server_name  172.16.21.177;
+    proxy_http_version 1.1;
+    proxy_hide_header Access-Control-Allow-Origin;
+    proxy_hide_header Access-Control-Allow-Methods;
+    add_header 'Access-Control-Allow-Origin' '*' always;
+    add_header 'Access-Control-Allow-Credentials' 'true' always;
+    add_header 'Access-Control-Allow-Methods' 'PUT, GET, POST, OPTIONS, DELETE, PATCH' always;
+    add_header 'Access-Control-Allow-Headers' 'DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,x-csrf-token' always;
+    
 
     location / {
         proxy_pass            http://visualizer:8050/;
@@ -76,7 +85,7 @@ server {
         proxy_set_header      Connection $connection_upgrade;
         proxy_cache_bypass    $http_upgrade;
         if ($request_method = 'OPTIONS') {
-            add_header 'Access-Control-Allow-Origin' 'http://localhost' always;
+            add_header 'Access-Control-Allow-Origin' '*' always;
             add_header 'Access-Control-Allow-Credentials' 'true' always;
             add_header 'Access-Control-Allow-Methods' 'PUT, GET, POST, OPTIONS, DELETE, PATCH' always;
             add_header 'Access-Control-Allow-Headers' 'DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,x-csrf-token' always;

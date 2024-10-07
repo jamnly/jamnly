@@ -14,3 +14,5 @@ services:
       -  ../envs/common-blockscout.env
     volumes:
       - ./logs/:/app/logs/
+    ports:
+      - "4000:4000"
