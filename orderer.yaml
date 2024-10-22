@@ -1,0 +1,141 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+---
+################################################################################
+#
+#   Orderer Configuration
+#
+#   - This controls the type and configuration of the orderer.
+#
+################################################################################
+General:
+    ListenAddress: 0.0.0.0
+    ListenPort: 7050
+
+    TLS:
+        Enabled: true
+        PrivateKey: $(pwd)/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.key  # 更新为 configtx 中的路径
+        Certificate: $(pwd)/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt  # 更新为 configtx 中的路径
+        RootCAs:
+            - ./organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/ca.crt  # 可能需要更新为适当的 CA 路径
+        ClientAuthRequired: false
+
+    Keepalive:
+        ServerMinInterval: 60s
+        ServerInterval: 7200s
+        ServerTimeout: 20s
+
+    Cluster:
+        SendBufferSize: 10
+        ClientCertificate:
+        ClientPrivateKey:
+        ListenPort: 7070
+        ListenAddress: 0.0.0.0
+        ServerCertificate: ./organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
+        ServerPrivateKey: ./organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.key
+
+    BootstrapMethod: file
+    BootstrapFile: 
+    LocalMSPDir: ./organizations/ordererOrganizations/example.com/msp
+    LocalMSPID: OrdererMSP  # 确保与 configtx 中的组织名称一致
+
+    Profile:
+        Enabled: false
+        Address: 0.0.0.0:6060
+
+    BCCSP:
+        Default: SW
+        SW:
+            Hash: SHA2
+            Security: 256
+            FileKeyStore:
+                KeyStore: 
+
+################################################################################
+#
+#   SECTION: File Ledger
+#
+################################################################################
+FileLedger:
+    Location: ./data/orderer
+    Prefix: hyperledger-fabric-ordererledger
+
+################################################################################
+#
+#   SECTION: Kafka
+#
+################################################################################
+Kafka:
+    Retry:
+        ShortInterval: 5s
+        ShortTotal: 10m
+        LongInterval: 5m
+        LongTotal: 12h
+        NetworkTimeouts:
+            DialTimeout: 10s
+            ReadTimeout: 10s
+            WriteTimeout: 10s
+        Metadata:
+            RetryBackoff: 250ms
+            RetryMax: 3
+        Producer:
+            RetryBackoff: 100ms
+            RetryMax: 3
+        Consumer:
+            RetryBackoff: 2s
+    Topic:
+        ReplicationFactor: 3
+    Verbose: false
+
+    TLS:
+        Enabled: false
+
+    SASLPlain:
+        Enabled: false
+
+    Version: 0.10.2.0
+
+################################################################################
+#
+#   Debug Configuration
+#
+################################################################################
+Debug:
+    BroadcastTraceDir:
+    DeliverTraceDir:
+
+################################################################################
+#
+#   Operations Configuration
+#
+################################################################################
+Operations:
+    ListenAddress: 127.0.0.1:8443
+    TLS:
+        Enabled: false
+
+################################################################################
+#
+#   Metrics Configuration
+#
+################################################################################
+Metrics:
+    Provider: disabled
+    Statsd:
+        Network: udp
+        Address: 127.0.0.1:8125
+        WriteInterval: 30s
+        Prefix:
+
+################################################################################
+#
+#   Consensus Configuration
+#
+################################################################################
+Consensus:
+    WALDir: ./data/orderer/etcdraft/wal
+    SnapDir: ./data/orderer/etcdraft/snapshot
+
