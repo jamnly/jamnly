@@ -1,5 +1,5 @@
-#docker 启动fabric
-##正常情况下
+# docker 启动fabric
+## 正常情况下
 * 启动容器 `docker*compose up -d`
 * 创建通道、加入通道、更新锚节点、打包链码、安装链码、批准链码、提交链码。
 * `./myfabric`
@@ -40,7 +40,7 @@
 * 查询 `peer chaincode query -C channel1 -n sacc -c '{"Args":["get","A"]}'`
 
 
-##可能修改的地方
+## 可能修改的地方
 * 要换链码或增加
 * main.go中更换链码，也可以更换peer
 * 在chaincode下创建新的链码
